@@ -20,6 +20,11 @@ type CategorySuggestion = {
   label: string;
 };
 
+type TopicOption = {
+  id: string;
+  label: string;
+};
+
 function newSessionToken() {
   return crypto.randomUUID();
 }
@@ -38,6 +43,8 @@ export default function AddPickForm() {
     CategorySuggestion[]
   >([]);
   const [note, setNote] = useState("");
+  const [topics, setTopics] = useState<TopicOption[]>([]);
+  const [topicId, setTopicId] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -88,6 +95,16 @@ export default function AddPickForm() {
     return () => clearTimeout(timeout);
   }, [categoryQuery]);
 
+  // Curated topic list, fetched once — small and static.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("topics")
+      .select("id, label")
+      .order("label")
+      .then(({ data }) => setTopics(data ?? []));
+  }, []);
+
   async function selectPlace(suggestion: PlaceSuggestion) {
     setSearching(true);
     setError(null);
@@ -117,13 +134,20 @@ export default function AddPickForm() {
     setCategoryQuery("");
     setCategorySuggestions([]);
     setNote("");
+    setTopicId("");
     setError(null);
     setSaved(false);
   }
 
+  const matchedCategory = categorySuggestions.find(
+    (c) => c.label.toLowerCase() === categoryQuery.trim().toLowerCase()
+  );
+  const isNewCategory = categoryQuery.trim().length > 0 && !matchedCategory;
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     if (!business || !categoryQuery.trim()) return;
+    if (isNewCategory && !topicId) return;
 
     setSaving(true);
     setError(null);
@@ -135,6 +159,7 @@ export default function AddPickForm() {
           businessId: business.id,
           categoryLabel: categoryQuery.trim(),
           note,
+          ...(isNewCategory ? { topicId } : {}),
         }),
       });
       const data = await res.json();
@@ -248,6 +273,22 @@ export default function AddPickForm() {
             )}
           </div>
 
+          {isNewCategory && (
+            <select
+              required
+              value={topicId}
+              onChange={(e) => setTopicId(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-black"
+            >
+              <option value="">Choose a topic for this new category&hellip;</option>
+              {topics.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          )}
+
           <textarea
             placeholder="Note (optional)"
             value={note}
@@ -263,7 +304,7 @@ export default function AddPickForm() {
       {business && (
         <button
           type="submit"
-          disabled={saving || !categoryQuery.trim()}
+          disabled={saving || !categoryQuery.trim() || (isNewCategory && !topicId)}
           className="w-full rounded-md bg-zinc-900 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
         >
           {saving ? "Saving..." : "Save pick"}
