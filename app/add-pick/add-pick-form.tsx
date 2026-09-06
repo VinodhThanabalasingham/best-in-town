@@ -42,6 +42,7 @@ export default function AddPickForm() {
   const [categorySuggestions, setCategorySuggestions] = useState<
     CategorySuggestion[]
   >([]);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [note, setNote] = useState("");
   const [topics, setTopics] = useState<TopicOption[]>([]);
   const [topicId, setTopicId] = useState("");
@@ -133,6 +134,7 @@ export default function AddPickForm() {
     setBusiness(null);
     setCategoryQuery("");
     setCategorySuggestions([]);
+    setCategoryDropdownOpen(false);
     setNote("");
     setTopicId("");
     setError(null);
@@ -244,16 +246,26 @@ export default function AddPickForm() {
                 const value = e.target.value;
                 setCategoryQuery(value);
                 if (!value.trim()) setCategorySuggestions([]);
+                if (value.trim()) setCategoryDropdownOpen(true);
+              }}
+              onFocus={() => {
+                if (categoryQuery.trim()) setCategoryDropdownOpen(true);
+              }}
+              onBlur={() => {
+                setTimeout(() => setCategoryDropdownOpen(false), 150);
               }}
               className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
             />
-            {categoryQuery.trim() && (
+            {categoryDropdownOpen && categoryQuery.trim() && (
               <ul className="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-black">
                 {categorySuggestions.map((c) => (
                   <li key={c.id}>
                     <button
                       type="button"
-                      onClick={() => setCategoryQuery(c.label)}
+                      onClick={() => {
+                        setCategoryQuery(c.label);
+                        setCategoryDropdownOpen(false);
+                      }}
                       className="block w-full px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
                     >
                       {c.label}

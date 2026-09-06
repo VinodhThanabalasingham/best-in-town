@@ -38,6 +38,7 @@ export default function PickCard({
   const [categorySuggestions, setCategorySuggestions] = useState<
     CategorySuggestion[]
   >([]);
+  const [categoryDropdownOpen, setCategoryDropdownOpen] = useState(false);
   const [note, setNote] = useState(pick.note ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -131,16 +132,26 @@ export default function PickCard({
                 const value = e.target.value;
                 setCategoryQuery(value);
                 if (!value.trim()) setCategorySuggestions([]);
+                if (value.trim()) setCategoryDropdownOpen(true);
+              }}
+              onFocus={() => {
+                if (categoryQuery.trim()) setCategoryDropdownOpen(true);
+              }}
+              onBlur={() => {
+                setTimeout(() => setCategoryDropdownOpen(false), 150);
               }}
               className="w-full rounded-md border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-black"
             />
-            {categorySuggestions.length > 0 && (
+            {categoryDropdownOpen && categoryQuery.trim() && categorySuggestions.length > 0 && (
               <ul className="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-black">
                 {categorySuggestions.map((c) => (
                   <li key={c.id}>
                     <button
                       type="button"
-                      onClick={() => setCategoryQuery(c.label)}
+                      onClick={() => {
+                        setCategoryQuery(c.label);
+                        setCategoryDropdownOpen(false);
+                      }}
                       className="block w-full px-2 py-1 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
                     >
                       {c.label}
@@ -189,6 +200,7 @@ export default function PickCard({
                 setNote(pick.note ?? "");
                 setTopicId("");
                 setError(null);
+                setCategoryDropdownOpen(false);
               }}
               className="rounded-md border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
             >
