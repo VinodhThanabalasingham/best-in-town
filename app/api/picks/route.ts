@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { businessId, categoryLabel, note } = await request.json();
+  const { businessId, categoryLabel, note, topicId } = await request.json();
 
   if (typeof businessId !== "string" || !businessId) {
     return NextResponse.json({ error: "businessId is required" }, { status: 400 });
@@ -20,9 +20,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "categoryLabel is required" }, { status: 400 });
   }
 
-  const resolved = await resolveCategoryId(supabase, categoryLabel);
+  const resolved = await resolveCategoryId(
+    supabase,
+    categoryLabel,
+    typeof topicId === "string" ? topicId : undefined
+  );
   if ("error" in resolved) {
-    return NextResponse.json({ error: resolved.error }, { status: 500 });
+    return NextResponse.json({ error: resolved.error }, { status: resolved.status });
   }
 
   const { data: pick, error: pickError } = await supabase
