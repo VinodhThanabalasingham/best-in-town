@@ -20,6 +20,11 @@ type CategorySuggestion = {
   label: string;
 };
 
+type TopicOption = {
+  id: string;
+  label: string;
+};
+
 export default function PickCard({
   pick,
   isOwner,
@@ -36,6 +41,8 @@ export default function PickCard({
   const [note, setNote] = useState(pick.note ?? "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [topics, setTopics] = useState<TopicOption[]>([]);
+  const [topicId, setTopicId] = useState("");
 
   useEffect(() => {
     if (mode !== "edit" || !categoryQuery.trim()) return;
@@ -51,15 +58,36 @@ export default function PickCard({
     return () => clearTimeout(timeout);
   }, [categoryQuery, mode]);
 
+  // Curated topic list, fetched lazily the first time edit mode opens.
+  useEffect(() => {
+    if (mode !== "edit" || topics.length > 0) return;
+    const supabase = createClient();
+    supabase
+      .from("topics")
+      .select("id, label")
+      .order("label")
+      .then(({ data }) => setTopics(data ?? []));
+  }, [mode, topics.length]);
+
+  const matchedCategory = categorySuggestions.find(
+    (c) => c.label.toLowerCase() === categoryQuery.trim().toLowerCase()
+  );
+  const isNewCategory = categoryQuery.trim().length > 0 && !matchedCategory;
+
   async function handleSave() {
     if (!categoryQuery.trim()) return;
+    if (isNewCategory && !topicId) return;
     setSaving(true);
     setError(null);
     try {
       const res = await fetch(`/api/picks/${pick.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categoryLabel: categoryQuery.trim(), note }),
+        body: JSON.stringify({
+          categoryLabel: categoryQuery.trim(),
+          note,
+          ...(isNewCategory ? { topicId } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Failed to save");
@@ -122,6 +150,21 @@ export default function PickCard({
               </ul>
             )}
           </div>
+          {isNewCategory && (
+            <select
+              required
+              value={topicId}
+              onChange={(e) => setTopicId(e.target.value)}
+              className="w-full rounded-md border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-black"
+            >
+              <option value="">Choose a topic&hellip;</option>
+              {topics.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          )}
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
@@ -133,7 +176,7 @@ export default function PickCard({
             <button
               type="button"
               onClick={handleSave}
-              disabled={saving}
+              disabled={saving || (isNewCategory && !topicId)}
               className="rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
             >
               {saving ? "Saving..." : "Save"}
@@ -144,6 +187,7 @@ export default function PickCard({
                 setMode("view");
                 setCategoryQuery(pick.categories?.label ?? "");
                 setNote(pick.note ?? "");
+                setTopicId("");
                 setError(null);
               }}
               className="rounded-md border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
