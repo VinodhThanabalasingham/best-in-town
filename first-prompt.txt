@@ -1,0 +1,10 @@
+Read CLAUDE.md in this repo for the project spec.
+
+Scaffold a new Next.js app (App Router, TypeScript, Tailwind) in this
+folder. Set up the Supabase client using the schema in schema.sql —
+walk me through creating the Supabase project and running that SQL if
+I haven't already. Then set up .env.local from .env.example and confirm
+the app runs locally with `npm run dev` before we build anything else.
+
+Don't build any screens yet — stop after the scaffold + Supabase
+connection is working and I've confirmed it.
