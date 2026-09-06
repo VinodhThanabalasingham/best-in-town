@@ -15,15 +15,19 @@ export async function PATCH(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { categoryLabel, note } = await request.json();
+  const { categoryLabel, note, topicId } = await request.json();
 
   if (typeof categoryLabel !== "string" || !categoryLabel.trim()) {
     return NextResponse.json({ error: "categoryLabel is required" }, { status: 400 });
   }
 
-  const resolved = await resolveCategoryId(supabase, categoryLabel);
+  const resolved = await resolveCategoryId(
+    supabase,
+    categoryLabel,
+    typeof topicId === "string" ? topicId : undefined
+  );
   if ("error" in resolved) {
-    return NextResponse.json({ error: resolved.error }, { status: 500 });
+    return NextResponse.json({ error: resolved.error }, { status: resolved.status });
   }
 
   // RLS ("Users update own picks") enforces that this only affects a
