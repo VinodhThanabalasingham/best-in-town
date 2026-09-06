@@ -1,6 +1,14 @@
+import CategoryCard from "@/components/category-card";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import PickCard from "./pick-card";
+
+function initials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "";
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[1][0]).toUpperCase();
+}
 
 type PickRow = {
   id: string;
@@ -92,50 +100,71 @@ export default async function ProfilePage({
     }))
     .sort((a, b) => a.label.localeCompare(b.label));
 
-  return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-12">
-      <header className="mb-10 flex items-center gap-4">
-        {profile.avatar_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={profile.avatar_url}
-            alt=""
-            className="h-16 w-16 rounded-full object-cover"
-          />
-        ) : (
-          <div className="h-16 w-16 rounded-full bg-zinc-200 dark:bg-zinc-800" />
-        )}
-        <div>
-          <h1 className="text-2xl font-semibold">
-            {profile.display_name || profile.username}
-          </h1>
-          <p className="text-zinc-500">@{profile.username}</p>
-        </div>
-      </header>
+  const totalCategories = sortedTopicGroups.reduce(
+    (sum, topic) => sum + topic.categories.length,
+    0
+  );
+  const totalPicks = sortedTopicGroups.reduce(
+    (sum, topic) =>
+      sum + topic.categories.reduce((s, c) => s + c.picks.length, 0),
+    0
+  );
 
-      {sortedTopicGroups.length === 0 ? (
-        <p className="text-zinc-500">No picks yet.</p>
-      ) : (
-        <div className="space-y-14">
-          {sortedTopicGroups.map((topic) => (
-            <div key={topic.label}>
-              <h2 className="mb-6 text-xl font-semibold">{topic.label}</h2>
-              <div className="space-y-10">
-                {topic.categories.map((shelf) => (
-                  <section key={shelf.label}>
-                    <h3 className="mb-3 text-lg font-medium">{shelf.label}</h3>
-                    <div className="flex gap-4 overflow-x-auto pb-2">
+  const displayName = profile.display_name || profile.username;
+
+  return (
+    <div className="min-h-screen">
+      <main className="above-grain mx-auto max-w-4xl px-6 pb-24 pt-10 md:px-10 md:pt-14">
+        <section className="flex items-center gap-4">
+          {profile.avatar_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={profile.avatar_url}
+              alt=""
+              className="h-16 w-16 shrink-0 rounded-full object-cover"
+            />
+          ) : (
+            <div
+              aria-hidden="true"
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-primary/40 bg-primary/10 font-serif text-xl text-primary"
+            >
+              {initials(displayName)}
+            </div>
+          )}
+          <div>
+            <h1 className="font-serif text-3xl leading-none tracking-tight text-foreground md:text-4xl">
+              {displayName}
+            </h1>
+            <p className="mt-1.5 text-sm text-muted-foreground">
+              @{profile.username} &middot; {totalCategories} shelves &middot;{" "}
+              {totalPicks} picks
+            </p>
+          </div>
+        </section>
+
+        {sortedTopicGroups.length === 0 ? (
+          <p className="mt-10 text-muted-foreground">No picks yet.</p>
+        ) : (
+          <div className="mt-10 space-y-14">
+            {sortedTopicGroups.map((topic) => (
+              <section key={topic.label}>
+                <h2 className="mb-6 font-serif text-2xl text-foreground">
+                  {topic.label}
+                </h2>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {topic.categories.map((shelf) => (
+                    <CategoryCard key={shelf.label} label={shelf.label}>
                       {shelf.picks.map((pick) => (
                         <PickCard key={pick.id} pick={pick} isOwner={isOwner} />
                       ))}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+                    </CategoryCard>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }

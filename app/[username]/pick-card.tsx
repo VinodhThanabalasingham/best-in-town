@@ -116,10 +116,10 @@ export default function PickCard({
   }
 
   return (
-    <div className="w-64 shrink-0 rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-      <div className="font-medium">{pick.businesses?.name}</div>
+    <div className="rounded-xl border border-border bg-background p-4">
+      <div className="font-medium text-foreground">{pick.businesses?.name}</div>
       {pick.businesses?.address && (
-        <div className="text-sm text-zinc-500">{pick.businesses.address}</div>
+        <div className="text-sm text-muted-foreground">{pick.businesses.address}</div>
       )}
 
       {mode === "edit" ? (
@@ -140,10 +140,10 @@ export default function PickCard({
               onBlur={() => {
                 setTimeout(() => setCategoryDropdownOpen(false), 150);
               }}
-              className="w-full rounded-md border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-black"
+              className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
             />
             {categoryDropdownOpen && categoryQuery.trim() && categorySuggestions.length > 0 && (
-              <ul className="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-black">
+              <ul className="absolute z-10 mt-1 w-full rounded-md border border-border bg-card shadow-lg">
                 {categorySuggestions.map((c) => (
                   <li key={c.id}>
                     <button
@@ -152,7 +152,7 @@ export default function PickCard({
                         setCategoryQuery(c.label);
                         setCategoryDropdownOpen(false);
                       }}
-                      className="block w-full px-2 py-1 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                      className="block w-full px-2 py-1 text-left text-sm hover:bg-foreground/5"
                     >
                       {c.label}
                     </button>
@@ -166,7 +166,7 @@ export default function PickCard({
               required
               value={topicId}
               onChange={(e) => setTopicId(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-black"
+              className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
             >
               <option value="">Choose a topic&hellip;</option>
               {topics.map((t) => (
@@ -180,7 +180,7 @@ export default function PickCard({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             rows={2}
-            className="w-full rounded-md border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-black"
+            className="w-full rounded-md border border-border bg-background px-2 py-1 text-sm"
           />
           {error && <p className="text-xs text-red-600">{error}</p>}
           <div className="flex gap-2">
@@ -188,7 +188,7 @@ export default function PickCard({
               type="button"
               onClick={handleSave}
               disabled={saving || (isNewCategory && !topicId)}
-              className="rounded-md bg-zinc-900 px-3 py-1 text-xs font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+              className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save"}
             </button>
@@ -202,7 +202,7 @@ export default function PickCard({
                 setError(null);
                 setCategoryDropdownOpen(false);
               }}
-              className="rounded-md border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+              className="rounded-md border border-border px-3 py-1 text-xs text-muted-foreground hover:text-foreground"
             >
               Cancel
             </button>
@@ -210,13 +210,15 @@ export default function PickCard({
         </div>
       ) : (
         <>
-          {pick.note && <p className="mt-2 text-sm">{pick.note}</p>}
+          {pick.note && (
+            <p className="mt-2 text-sm text-foreground/80">{pick.note}</p>
+          )}
           {pick.businesses?.maps_url && (
             <a
               href={pick.businesses.maps_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-block text-sm font-medium underline"
+              className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
             >
               View on Google Maps &rarr;
             </a>
@@ -225,14 +227,18 @@ export default function PickCard({
       )}
 
       {isOwner && mode === "view" && (
-        <div className="mt-3 flex gap-3 text-xs text-zinc-500">
-          <button type="button" onClick={() => setMode("edit")} className="underline">
+        <div className="mt-3 flex gap-3 text-xs text-muted-foreground">
+          <button
+            type="button"
+            onClick={() => setMode("edit")}
+            className="hover:text-foreground"
+          >
             Edit
           </button>
           <button
             type="button"
             onClick={() => setMode("confirm-delete")}
-            className="underline"
+            className="hover:text-foreground"
           >
             Delete
           </button>
@@ -242,20 +248,20 @@ export default function PickCard({
       {mode === "confirm-delete" && (
         <div className="mt-3 space-y-2 text-xs">
           {error && <p className="text-red-600">{error}</p>}
-          <p>Delete this pick?</p>
+          <p className="text-muted-foreground">Delete this pick?</p>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={handleDelete}
               disabled={saving}
-              className="font-medium text-red-600 underline disabled:opacity-50"
+              className="font-medium text-red-600 hover:underline disabled:opacity-50"
             >
               {saving ? "Deleting..." : "Yes, delete"}
             </button>
             <button
               type="button"
               onClick={() => setMode("view")}
-              className="underline"
+              className="text-muted-foreground hover:text-foreground"
             >
               No
             </button>
