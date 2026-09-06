@@ -24,6 +24,18 @@ export async function POST(request: Request) {
   }
 
   try {
+    const { data: existingBusiness, error: lookupError } = await supabase
+      .from("businesses")
+      .select()
+      .eq("place_id", placeId)
+      .maybeSingle();
+
+    if (lookupError) throw lookupError;
+
+    if (existingBusiness) {
+      return NextResponse.json({ business: existingBusiness });
+    }
+
     const details = await getPlaceDetails(placeId, sessionToken);
 
     const { data: business, error } = await supabase
