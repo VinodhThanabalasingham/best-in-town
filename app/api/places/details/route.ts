@@ -40,16 +40,13 @@ export async function POST(request: Request) {
 
     const { data: business, error } = await supabase
       .from("businesses")
-      .upsert(
-        {
-          place_id: details.placeId,
-          name: details.name,
-          address: details.address,
-          rating: details.rating,
-          maps_url: details.mapsUrl,
-        },
-        { onConflict: "place_id" }
-      )
+      .insert({
+        place_id: details.placeId,
+        name: details.name,
+        address: details.address,
+        rating: details.rating,
+        maps_url: details.mapsUrl,
+      })
       .select()
       .single();
 
