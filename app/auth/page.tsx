@@ -88,9 +88,9 @@ export default function AuthPage() {
 
   if (status === "sent") {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="max-w-sm text-center text-lg">
-          Check <span className="font-medium">{email}</span> for a
+      <div className="above-grain flex min-h-screen flex-1 items-center justify-center px-6">
+        <p className="max-w-sm text-center font-serif text-lg italic leading-relaxed text-foreground/80">
+          Check <span className="not-italic font-medium">{email}</span> for a
           confirmation link to finish{" "}
           {mode === "signup" ? "signing up" : "logging in"}.
         </p>
@@ -98,100 +98,129 @@ export default function AuthPage() {
     );
   }
 
+  const isSignup = mode === "signup";
+
   return (
-    <div className="flex flex-1 items-center justify-center">
-      <div className="w-full max-w-sm space-y-6">
-        <div className="flex rounded-lg border border-zinc-200 p-1 dark:border-zinc-800">
-          <button
-            type="button"
-            onClick={() => setMode("signup")}
-            className={`flex-1 rounded-md py-2 text-sm font-medium ${
-              mode === "signup"
-                ? "bg-zinc-900 text-white dark:bg-white dark:text-black"
-                : ""
-            }`}
-          >
-            Sign up
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode("login")}
-            className={`flex-1 rounded-md py-2 text-sm font-medium ${
-              mode === "login"
-                ? "bg-zinc-900 text-white dark:bg-white dark:text-black"
-                : ""
-            }`}
-          >
-            Log in
-          </button>
-        </div>
+    <div className="above-grain flex min-h-screen flex-col px-6 py-8 md:px-10">
+      <span className="font-serif text-xl tracking-tight text-foreground md:text-2xl">
+        Best In Town
+      </span>
 
-        <div className="flex gap-4 text-sm">
-          <label className="flex items-center gap-1.5">
-            <input
-              type="radio"
-              checked={method === "magic-link"}
-              onChange={() => setMethod("magic-link")}
-            />
-            Magic link
-          </label>
-          <label className="flex items-center gap-1.5">
-            <input
-              type="radio"
-              checked={method === "password"}
-              onChange={() => setMethod("password")}
-            />
-            Password
-          </label>
-        </div>
+      <main className="flex flex-1 items-center">
+        <div className="mx-auto w-full max-w-md">
+          <h1 className="text-balance font-serif text-4xl leading-tight tracking-tight text-foreground md:text-5xl">
+            {isSignup ? "Keep a shelf of your own." : "Welcome back to your shelf."}
+          </h1>
+          <p className="mt-4 font-serif text-lg italic leading-relaxed text-foreground/70">
+            The best places in town, remembered properly — and shared only
+            when you mean it.
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <input
-            type="email"
-            required
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
-          />
+          <div className="mt-10 inline-flex rounded-sm border border-border bg-popover p-1">
+            <button
+              type="button"
+              onClick={() => setMode("signup")}
+              className={`rounded-[2px] px-6 py-2 text-sm transition-colors ${
+                mode === "signup"
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Sign up
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("login")}
+              className={`rounded-[2px] px-6 py-2 text-sm transition-colors ${
+                mode === "login"
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Log in
+            </button>
+          </div>
 
-          {mode === "signup" && (
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            <fieldset>
+              <legend className="sr-only">Sign-in method</legend>
+              <div className="flex gap-6">
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                  <input
+                    type="radio"
+                    name="method"
+                    checked={method === "magic-link"}
+                    onChange={() => setMethod("magic-link")}
+                    className="h-4 w-4 accent-[var(--primary)]"
+                  />
+                  Magic link
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm text-foreground">
+                  <input
+                    type="radio"
+                    name="method"
+                    checked={method === "password"}
+                    onChange={() => setMethod("password")}
+                    className="h-4 w-4 accent-[var(--primary)]"
+                  />
+                  Password
+                </label>
+              </div>
+            </fieldset>
+
             <input
-              type="text"
+              type="email"
               required
-              placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
+              placeholder="you@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-sm border border-input bg-popover px-4 py-3 text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
-          )}
 
-          {method === "password" && (
-            <input
-              type="password"
-              required
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
-            />
-          )}
+            {isSignup && (
+              <input
+                type="text"
+                required
+                placeholder="a name for your shelf"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full rounded-sm border border-input bg-popover px-4 py-3 text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            )}
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+            {method === "password" && (
+              <input
+                type="password"
+                required
+                placeholder="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-sm border border-input bg-popover px-4 py-3 text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              />
+            )}
 
-          <button
-            type="submit"
-            disabled={status === "loading"}
-            className="w-full rounded-md bg-zinc-900 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
-          >
-            {status === "loading"
-              ? "Working..."
-              : mode === "signup"
-              ? "Sign up"
-              : "Log in"}
-          </button>
-        </form>
-      </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={status === "loading"}
+              className="w-full rounded-sm bg-primary px-6 py-3.5 font-serif text-lg text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {status === "loading"
+                ? "Working..."
+                : isSignup
+                ? "Sign up"
+                : "Log in"}
+            </button>
+
+            {method === "magic-link" && (
+              <p className="text-center text-sm text-muted-foreground">
+                We&apos;ll send a link to your inbox. No password to forget.
+              </p>
+            )}
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

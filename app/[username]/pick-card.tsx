@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import { ArrowUpRight, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -116,10 +117,33 @@ export default function PickCard({
   }
 
   return (
-    <div className="rounded-xl border border-border bg-background p-4">
-      <div className="font-medium text-foreground">{pick.businesses?.name}</div>
+    <article className="elevate elevate-hover flex snap-start shrink-0 basis-[78%] flex-col rounded-xl border border-border/70 bg-popover p-4 sm:basis-[calc(50%-0.5rem)]">
+      {mode === "view" && (
+        <div
+          className="flex aspect-[5/4] w-full items-center justify-center overflow-hidden rounded-lg border border-border/70"
+          style={{
+            background:
+              "linear-gradient(150deg, color-mix(in srgb, var(--tile-accent, var(--primary)) 24%, var(--card)) 0%, var(--card) 78%)",
+          }}
+        >
+          <span
+            aria-hidden="true"
+            className="font-serif text-6xl leading-none"
+            style={{ color: "var(--tile-accent, var(--primary))" }}
+          >
+            {pick.businesses?.name?.charAt(0)}
+          </span>
+        </div>
+      )}
+
+      <div className="mt-4 font-semibold text-foreground">
+        {pick.businesses?.name}
+      </div>
       {pick.businesses?.address && (
-        <div className="text-sm text-muted-foreground">{pick.businesses.address}</div>
+        <p className="mt-1 flex items-start gap-1.5 text-xs leading-relaxed text-muted-foreground">
+          <MapPin aria-hidden="true" className="mt-0.5 h-3 w-3 shrink-0" />
+          <span>{pick.businesses.address}</span>
+        </p>
       )}
 
       {mode === "edit" ? (
@@ -211,16 +235,19 @@ export default function PickCard({
       ) : (
         <>
           {pick.note && (
-            <p className="mt-2 text-sm text-foreground/80">{pick.note}</p>
+            <p className="mt-2 text-sm italic leading-relaxed text-foreground/80">
+              {pick.note}
+            </p>
           )}
           {pick.businesses?.maps_url && (
             <a
               href={pick.businesses.maps_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3 inline-block text-sm font-medium text-primary hover:underline"
+              className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-secondary underline-offset-4 hover:underline"
             >
-              View on Google Maps &rarr;
+              View on Google Maps
+              <ArrowUpRight aria-hidden="true" className="h-3 w-3" />
             </a>
           )}
         </>
@@ -268,6 +295,6 @@ export default function PickCard({
           </div>
         </div>
       )}
-    </div>
+    </article>
   );
 }

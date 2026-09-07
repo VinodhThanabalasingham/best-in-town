@@ -17,25 +17,43 @@ export default async function Nav() {
     .single();
 
   return (
-    <nav className="flex items-center justify-between border-b border-border px-4 py-3 md:px-10">
-      <Link href="/" className="font-serif text-xl tracking-tight text-primary">
-        Best In Town
-      </Link>
-      <div className="flex items-center gap-5 text-sm text-muted-foreground">
-        <Link href={`/${profile?.username}`} className="hover:text-foreground">
-          Profile
+    <header className="above-grain border-b border-border/70">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-6 py-6 md:px-10">
+        <Link
+          href="/"
+          className="font-serif text-xl tracking-tight text-foreground md:text-2xl"
+        >
+          Best In Town
         </Link>
-        <Link href="/add-pick" className="hover:text-foreground">
-          Add a pick
-        </Link>
-        <Link href="/community" className="hover:text-foreground">
-          Community
-        </Link>
-        <Link href="/edit-profile" className="hover:text-foreground">
-          Edit profile
-        </Link>
-        <SignOutButton />
+
+        <nav className="flex items-center gap-5 text-sm md:gap-7">
+          <Link
+            href={`/${profile?.username}`}
+            className="hidden text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline sm:inline"
+          >
+            Profile
+          </Link>
+          <Link
+            href="/add-pick"
+            className="hidden text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline sm:inline"
+          >
+            Add a pick
+          </Link>
+          <Link
+            href="/community"
+            className="hidden text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline sm:inline"
+          >
+            Community
+          </Link>
+          <Link
+            href="/edit-profile"
+            className="hidden text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline sm:inline"
+          >
+            Edit profile
+          </Link>
+          <SignOutButton />
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }

@@ -13,11 +13,22 @@ export default async function AddPickPage() {
   }
 
   return (
-    <div className="flex flex-1 justify-center px-4 py-12">
-      <div className="w-full max-w-md">
-        <h1 className="mb-6 text-2xl font-semibold">Add a pick</h1>
-        <AddPickForm />
-      </div>
+    <div className="min-h-screen">
+      <main className="above-grain mx-auto max-w-2xl px-6 pb-24 pt-12 md:px-10 md:pt-16">
+        <p className="text-sm uppercase tracking-[0.18em] text-secondary">
+          A new entry
+        </p>
+        <h1 className="mt-2 font-serif text-4xl tracking-tight text-foreground md:text-5xl">
+          Add a pick
+        </h1>
+        <p className="mt-4 max-w-md font-serif text-lg italic leading-relaxed text-foreground/70">
+          Find the place, put it on a shelf, and say why it earned the spot.
+        </p>
+
+        <div className="mt-12">
+          <AddPickForm />
+        </div>
+      </main>
     </div>
   );
 }

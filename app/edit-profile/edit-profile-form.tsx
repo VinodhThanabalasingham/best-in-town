@@ -88,23 +88,23 @@ export default function EditProfileForm({ profile }: { profile: Profile }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="flex items-center gap-4">
         {avatarPreview ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatarPreview}
             alt=""
-            className="h-16 w-16 rounded-full object-cover"
+            className="elevate h-16 w-16 rounded-full object-cover"
           />
         ) : (
-          <div className="h-16 w-16 rounded-full bg-zinc-200 dark:bg-zinc-800" />
+          <div className="elevate h-16 w-16 rounded-full border border-primary/30 bg-primary/10" />
         )}
         <input
           type="file"
           accept="image/png,image/jpeg,image/webp"
           onChange={handleFileChange}
-          className="text-sm"
+          className="text-sm text-muted-foreground"
         />
       </div>
 
@@ -113,16 +113,16 @@ export default function EditProfileForm({ profile }: { profile: Profile }) {
         placeholder="Display name"
         value={displayName}
         onChange={(e) => setDisplayName(e.target.value)}
-        className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
+        className="w-full rounded-sm border border-input bg-popover px-4 py-3 text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
       />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
-      {saved && <p className="text-sm text-green-600">Saved.</p>}
+      {error && <p className="text-sm text-destructive">{error}</p>}
+      {saved && <p className="text-sm text-secondary">Saved.</p>}
 
       <button
         type="submit"
         disabled={saving}
-        className="w-full rounded-md bg-zinc-900 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+        className="w-full rounded-sm bg-primary px-6 py-3.5 font-serif text-lg text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {saving ? "Saving..." : "Save"}
       </button>

@@ -214,15 +214,16 @@ export default function AddPickForm() {
 
   if (saved) {
     return (
-      <div className="space-y-4">
-        <p className="text-lg">
-          Saved <span className="font-medium">{business?.name}</span> under{" "}
-          <span className="font-medium">{categoryQuery.trim()}</span>.
+      <div className="space-y-6">
+        <p className="font-serif text-lg italic leading-relaxed text-foreground/80">
+          Saved <span className="not-italic font-medium">{business?.name}</span>{" "}
+          under{" "}
+          <span className="not-italic font-medium">{categoryQuery.trim()}</span>.
         </p>
         <button
           type="button"
           onClick={reset}
-          className="rounded-md border border-zinc-300 px-4 py-2 text-sm dark:border-zinc-700"
+          className="rounded-sm border border-input bg-popover px-4 py-2 text-sm text-foreground hover:border-primary"
         >
           Add another pick
         </button>
@@ -231,73 +232,101 @@ export default function AddPickForm() {
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-4">
-      <div className="relative">
-        <input
-          type="text"
-          placeholder="Search for a business"
-          value={query}
-          onChange={(e) => {
-            const value = e.target.value;
-            setQuery(value);
-            setBusiness(null);
-            if (value.trim().length < 2) setSuggestions([]);
-          }}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
-        />
-        {suggestions.length > 0 && (
-          <ul className="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-black">
-            {suggestions.map((s) => (
-              <li key={s.placeId}>
-                <button
-                  type="button"
-                  onClick={() => selectPlace(s)}
-                  className="block w-full px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                >
-                  <div className="font-medium">{s.primaryText}</div>
-                  <div className="text-zinc-500">{s.secondaryText}</div>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {business && (
-        <div className="rounded-md border border-zinc-200 p-3 text-sm dark:border-zinc-800">
-          <div className="font-medium">{business.name}</div>
-          {business.address && (
-            <div className="text-zinc-500">{business.address}</div>
+    <form onSubmit={handleSave} className="space-y-10">
+      {/* Step 1 — search */}
+      <section>
+        <label htmlFor="search" className="font-serif text-lg text-foreground">
+          Which place?
+        </label>
+        <div className="relative mt-3">
+          <input
+            id="search"
+            placeholder="Search a local business…"
+            value={query}
+            onChange={(e) => {
+              const value = e.target.value;
+              setQuery(value);
+              setBusiness(null);
+              if (value.trim().length < 2) setSuggestions([]);
+            }}
+            autoComplete="off"
+            className="w-full rounded-sm border border-input bg-popover px-4 py-3 text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+          {suggestions.length > 0 && (
+            <ul className="mt-2 divide-y divide-border overflow-hidden rounded-sm border border-border bg-popover">
+              {suggestions.map((s) => (
+                <li key={s.placeId}>
+                  <button
+                    type="button"
+                    onClick={() => selectPlace(s)}
+                    className="block w-full px-4 py-3 text-left transition-colors hover:bg-primary/8"
+                  >
+                    <span className="block text-foreground">{s.primaryText}</span>
+                    <span className="block text-sm text-muted-foreground">
+                      {s.secondaryText}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
-      )}
 
+        {business && (
+          <div className="mt-3 rounded-sm border border-secondary/50 bg-secondary/8 px-4 py-4">
+            <span className="block font-serif text-lg text-foreground">
+              {business.name}
+            </span>
+            {business.address && (
+              <span className="mt-0.5 block text-sm text-muted-foreground">
+                {business.address}
+              </span>
+            )}
+          </div>
+        )}
+
+        {searching && !business && (
+          <p className="mt-2 text-sm text-muted-foreground">Searching…</p>
+        )}
+      </section>
+
+      {/* Step 2 — city */}
       {business && !business.city_id && (
-        <select
-          required
-          value=""
-          onChange={(e) => handleCityChange(e.target.value)}
-          disabled={settingCity}
-          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-black"
-        >
-          <option value="">
-            {settingCity ? "Saving city..." : "Which city is this in?"}
-          </option>
-          {cities.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.label}
+        <section>
+          <label htmlFor="city" className="font-serif text-lg text-foreground">
+            Which city is this in?
+          </label>
+          <select
+            id="city"
+            required
+            value=""
+            onChange={(e) => handleCityChange(e.target.value)}
+            disabled={settingCity}
+            className="mt-3 w-full rounded-sm border border-input bg-popover px-4 py-3 text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          >
+            <option value="">
+              {settingCity ? "Saving city…" : "Choose a city…"}
             </option>
-          ))}
-        </select>
+            {cities.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+        </section>
       )}
 
+      {/* Step 3 — category */}
       {business && (
-        <>
-          <div className="relative">
+        <section>
+          <label htmlFor="category" className="font-serif text-lg text-foreground">
+            On which shelf?
+          </label>
+          <div className="relative mt-3">
             <input
-              type="text"
+              id="category"
               required
-              placeholder="Category (e.g. Best coffee)"
+              placeholder="Choose a shelf, or name a new one…"
               value={categoryQuery}
               onChange={(e) => {
                 const value = e.target.value;
@@ -311,34 +340,35 @@ export default function AddPickForm() {
               onBlur={() => {
                 setTimeout(() => setCategoryDropdownOpen(false), 150);
               }}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
+              autoComplete="off"
+              className="w-full rounded-sm border border-input bg-popover px-4 py-3 text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
             {categoryDropdownOpen && categoryQuery.trim() && (
-              <ul className="absolute z-10 mt-1 w-full rounded-md border border-zinc-200 bg-white shadow-lg dark:border-zinc-800 dark:bg-black">
+              <div className="mt-2 overflow-hidden rounded-sm border border-border bg-popover">
                 {categorySuggestions.map((c) => (
-                  <li key={c.id}>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCategoryQuery(c.label);
-                        setCategoryDropdownOpen(false);
-                      }}
-                      className="block w-full px-3 py-2 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
-                    >
-                      {c.label}
-                    </button>
-                  </li>
+                  <button
+                    key={c.id}
+                    type="button"
+                    onClick={() => {
+                      setCategoryQuery(c.label);
+                      setCategoryDropdownOpen(false);
+                    }}
+                    className="block w-full border-b border-border px-4 py-3 text-left text-foreground transition-colors last:border-b-0 hover:bg-secondary/10"
+                  >
+                    {c.label}
+                  </button>
                 ))}
-                {!categorySuggestions.some(
-                  (c) => c.label.toLowerCase() === categoryQuery.trim().toLowerCase()
-                ) && (
-                  <li>
-                    <div className="px-3 py-2 text-sm text-zinc-500">
-                      Create &ldquo;{categoryQuery.trim()}&rdquo;
-                    </div>
-                  </li>
+                {isNewCategory && (
+                  <div className="block w-full bg-primary/8 px-4 py-4 text-left">
+                    <span className="text-xs uppercase tracking-[0.16em] text-primary">
+                      Start a new shelf
+                    </span>
+                    <span className="mt-1 block font-serif text-lg italic text-foreground">
+                      &ldquo;{categoryQuery.trim()}&rdquo;
+                    </span>
+                  </div>
                 )}
-              </ul>
+              </div>
             )}
           </div>
 
@@ -347,9 +377,9 @@ export default function AddPickForm() {
               required
               value={topicId}
               onChange={(e) => setTopicId(e.target.value)}
-              className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-black"
+              className="mt-3 w-full rounded-sm border border-input bg-popover px-4 py-3 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             >
-              <option value="">Choose a topic for this new category&hellip;</option>
+              <option value="">Choose a topic for this new shelf&hellip;</option>
               {topics.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.label}
@@ -357,18 +387,30 @@ export default function AddPickForm() {
               ))}
             </select>
           )}
-
-          <textarea
-            placeholder="Note (optional)"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            className="w-full rounded-md border border-zinc-300 px-3 py-2 dark:border-zinc-700 dark:bg-black"
-            rows={3}
-          />
-        </>
+        </section>
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {/* Step 4 — note */}
+      {business && (
+        <section>
+          <label htmlFor="note" className="font-serif text-lg text-foreground">
+            A word on it{" "}
+            <span className="text-sm font-normal text-muted-foreground">
+              (optional)
+            </span>
+          </label>
+          <textarea
+            id="note"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            rows={4}
+            placeholder="Order the roll. Sit by the window. Go before ten."
+            className="mt-3 w-full resize-none rounded-sm border border-input bg-popover px-4 py-3 leading-relaxed text-foreground placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          />
+        </section>
+      )}
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
 
       {business && (
         <button
@@ -379,14 +421,10 @@ export default function AddPickForm() {
             !business.city_id ||
             (isNewCategory && !topicId)
           }
-          className="w-full rounded-md bg-zinc-900 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
+          className="w-full rounded-sm bg-primary px-6 py-4 font-serif text-lg text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {saving ? "Saving..." : "Save pick"}
         </button>
-      )}
-
-      {searching && !business && (
-        <p className="text-sm text-zinc-500">Searching...</p>
       )}
     </form>
   );

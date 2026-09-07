@@ -126,16 +126,16 @@ export default async function ProfilePage({
           ) : (
             <div
               aria-hidden="true"
-              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-primary/40 bg-primary/10 font-serif text-xl text-primary"
+              className="elevate flex h-16 w-16 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 font-serif text-xl text-primary"
             >
               {initials(displayName)}
             </div>
           )}
           <div>
-            <h1 className="font-serif text-3xl leading-none tracking-tight text-foreground md:text-4xl">
+            <h1 className="text-3xl font-semibold leading-none tracking-tight text-foreground md:text-4xl">
               {displayName}
             </h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">
+            <p className="mt-2 text-sm text-muted-foreground">
               @{profile.username} &middot; {totalCategories} shelves &middot;{" "}
               {totalPicks} picks
             </p>
@@ -145,7 +145,7 @@ export default async function ProfilePage({
         {sortedTopicGroups.length === 0 ? (
           <p className="mt-10 text-muted-foreground">No picks yet.</p>
         ) : (
-          <div className="mt-10">
+          <div className="mt-12">
             <CityFilterSection topicGroups={sortedTopicGroups} isOwner={isOwner} />
           </div>
         )}

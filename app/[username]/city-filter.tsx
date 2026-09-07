@@ -1,6 +1,6 @@
 "use client";
 
-import CategoryCard from "@/components/category-card";
+import CategoryRow from "@/components/category-row";
 import { useMemo, useState } from "react";
 import PickCard from "./pick-card";
 
@@ -48,20 +48,35 @@ export default function CityFilterSection({
   const [selectedCityId, setSelectedCityId] = useState<string | null>(null);
 
   const filteredTopicGroups = useMemo(() => {
-    if (!selectedCityId) return topicGroups;
-    return topicGroups
-      .map((topic) => ({
-        label: topic.label,
-        categories: topic.categories
-          .map((category) => ({
-            label: category.label,
-            picks: category.picks.filter(
-              (pick) => pick.businesses?.cities?.id === selectedCityId
-            ),
+    const filtered = selectedCityId
+      ? topicGroups
+          .map((topic) => ({
+            label: topic.label,
+            categories: topic.categories
+              .map((category) => ({
+                label: category.label,
+                picks: category.picks.filter(
+                  (pick) => pick.businesses?.cities?.id === selectedCityId
+                ),
+              }))
+              .filter((category) => category.picks.length > 0),
           }))
-          .filter((category) => category.picks.length > 0),
-      }))
-      .filter((topic) => topic.categories.length > 0);
+          .filter((topic) => topic.categories.length > 0)
+      : topicGroups;
+
+    const counts = filtered.map((topic) => topic.categories.length);
+    return filtered.map((topic, topicIndex) => {
+      const offset = counts
+        .slice(0, topicIndex)
+        .reduce((sum, n) => sum + n, 0);
+      const categories = topic.categories.map((category, i) => ({
+        ...category,
+        accent: ((offset + i) % 2 === 0 ? "primary" : "secondary") as
+          | "primary"
+          | "secondary",
+      }));
+      return { label: topic.label, categories };
+    });
   }, [topicGroups, selectedCityId]);
 
   return (
@@ -71,7 +86,7 @@ export default function CityFilterSection({
           <button
             type="button"
             onClick={() => setSelectedCityId(null)}
-            className={`rounded-full border px-3 py-1 text-sm ${
+            className={`rounded-full border px-3 py-1 text-sm transition-colors ${
               selectedCityId === null
                 ? "border-primary bg-primary/10 text-primary"
                 : "border-border text-muted-foreground hover:text-foreground"
@@ -84,7 +99,7 @@ export default function CityFilterSection({
               key={city.id}
               type="button"
               onClick={() => setSelectedCityId(city.id)}
-              className={`rounded-full border px-3 py-1 text-sm ${
+              className={`rounded-full border px-3 py-1 text-sm transition-colors ${
                 selectedCityId === city.id
                   ? "border-primary bg-primary/10 text-primary"
                   : "border-border text-muted-foreground hover:text-foreground"
@@ -99,19 +114,24 @@ export default function CityFilterSection({
       {filteredTopicGroups.length === 0 ? (
         <p className="text-muted-foreground">No picks in this city yet.</p>
       ) : (
-        <div className="space-y-14">
+        <div className="space-y-12">
           {filteredTopicGroups.map((topic) => (
             <section key={topic.label}>
-              <h2 className="mb-6 font-serif text-2xl text-foreground">
+              <h2 className="font-serif text-2xl text-foreground">
                 {topic.label}
               </h2>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
                 {topic.categories.map((shelf) => (
-                  <CategoryCard key={shelf.label} label={shelf.label}>
+                  <CategoryRow
+                    key={shelf.label}
+                    label={shelf.label}
+                    count={shelf.picks.length}
+                    accent={shelf.accent}
+                  >
                     {shelf.picks.map((pick) => (
                       <PickCard key={pick.id} pick={pick} isOwner={isOwner} />
                     ))}
-                  </CategoryCard>
+                  </CategoryRow>
                 ))}
               </div>
             </section>
