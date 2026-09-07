@@ -13,6 +13,7 @@ type Business = {
   id: string;
   name: string;
   address: string | null;
+  city_id: string | null;
 };
 
 type CategorySuggestion = {
@@ -21,6 +22,11 @@ type CategorySuggestion = {
 };
 
 type TopicOption = {
+  id: string;
+  label: string;
+};
+
+type CityOption = {
   id: string;
   label: string;
 };
@@ -46,6 +52,8 @@ export default function AddPickForm() {
   const [note, setNote] = useState("");
   const [topics, setTopics] = useState<TopicOption[]>([]);
   const [topicId, setTopicId] = useState("");
+  const [cities, setCities] = useState<CityOption[]>([]);
+  const [settingCity, setSettingCity] = useState(false);
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -106,6 +114,16 @@ export default function AddPickForm() {
       .then(({ data }) => setTopics(data ?? []));
   }, []);
 
+  // Curated city list, fetched once — small and static.
+  useEffect(() => {
+    const supabase = createClient();
+    supabase
+      .from("cities")
+      .select("id, label")
+      .order("label")
+      .then(({ data }) => setCities(data ?? []));
+  }, []);
+
   async function selectPlace(suggestion: PlaceSuggestion) {
     setSearching(true);
     setError(null);
@@ -124,6 +142,26 @@ export default function AddPickForm() {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setSearching(false);
+    }
+  }
+
+  async function handleCityChange(cityId: string) {
+    if (!business) return;
+    setSettingCity(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/businesses/${business.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cityId }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed to set city");
+      setBusiness(data.business);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong.");
+    } finally {
+      setSettingCity(false);
     }
   }
 
@@ -148,7 +186,7 @@ export default function AddPickForm() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    if (!business || !categoryQuery.trim()) return;
+    if (!business || !categoryQuery.trim() || !business.city_id) return;
     if (isNewCategory && !topicId) return;
 
     setSaving(true);
@@ -234,6 +272,25 @@ export default function AddPickForm() {
         </div>
       )}
 
+      {business && !business.city_id && (
+        <select
+          required
+          value=""
+          onChange={(e) => handleCityChange(e.target.value)}
+          disabled={settingCity}
+          className="w-full rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-black"
+        >
+          <option value="">
+            {settingCity ? "Saving city..." : "Which city is this in?"}
+          </option>
+          {cities.map((c) => (
+            <option key={c.id} value={c.id}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+      )}
+
       {business && (
         <>
           <div className="relative">
@@ -316,7 +373,12 @@ export default function AddPickForm() {
       {business && (
         <button
           type="submit"
-          disabled={saving || !categoryQuery.trim() || (isNewCategory && !topicId)}
+          disabled={
+            saving ||
+            !categoryQuery.trim() ||
+            !business.city_id ||
+            (isNewCategory && !topicId)
+          }
           className="w-full rounded-md bg-zinc-900 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
         >
           {saving ? "Saving..." : "Save pick"}
