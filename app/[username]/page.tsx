@@ -26,6 +26,7 @@ type PickRow = {
     address: string | null;
     maps_url: string | null;
     rating: number | null;
+    cities: { id: string; label: string } | null;
   } | null;
 };
 
@@ -55,7 +56,7 @@ export default async function ProfilePage({
   const { data: picks } = await supabase
     .from("picks")
     .select(
-      "id, note, categories(id, label, topics(id, label)), businesses(id, name, address, maps_url, rating)"
+      "id, note, categories(id, label, topics(id, label)), businesses(id, name, address, maps_url, rating, cities(id, label))"
     )
     .eq("profile_id", profile.id)
     .order("created_at", { ascending: false })
