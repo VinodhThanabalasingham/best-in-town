@@ -19,7 +19,7 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 ## Database setup
 
 In the Supabase SQL editor, run `schema.sql` first, then run each file in
-`supabase/migrations/` in numeric order (0001, 0002, 0003, 0004, 0005).
+`supabase/migrations/` in numeric order (0001 through 0007).
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
