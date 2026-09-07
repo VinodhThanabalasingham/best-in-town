@@ -18,10 +18,7 @@ export default async function Nav() {
 
   return (
     <nav className="flex items-center justify-between border-b border-border px-4 py-3 md:px-10">
-      <Link
-        href={`/${profile?.username}`}
-        className="font-serif text-xl tracking-tight text-primary"
-      >
+      <Link href="/" className="font-serif text-xl tracking-tight text-primary">
         Best In Town
       </Link>
       <div className="flex items-center gap-5 text-sm text-muted-foreground">
@@ -30,6 +27,9 @@ export default async function Nav() {
         </Link>
         <Link href="/add-pick" className="hover:text-foreground">
           Add a pick
+        </Link>
+        <Link href="/community" className="hover:text-foreground">
+          Community
         </Link>
         <Link href="/edit-profile" className="hover:text-foreground">
           Edit profile
