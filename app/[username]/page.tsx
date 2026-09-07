@@ -1,7 +1,6 @@
-import CategoryCard from "@/components/category-card";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
-import PickCard from "./pick-card";
+import CityFilterSection from "./city-filter";
 
 function initials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -146,23 +145,8 @@ export default async function ProfilePage({
         {sortedTopicGroups.length === 0 ? (
           <p className="mt-10 text-muted-foreground">No picks yet.</p>
         ) : (
-          <div className="mt-10 space-y-14">
-            {sortedTopicGroups.map((topic) => (
-              <section key={topic.label}>
-                <h2 className="mb-6 font-serif text-2xl text-foreground">
-                  {topic.label}
-                </h2>
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {topic.categories.map((shelf) => (
-                    <CategoryCard key={shelf.label} label={shelf.label}>
-                      {shelf.picks.map((pick) => (
-                        <PickCard key={pick.id} pick={pick} isOwner={isOwner} />
-                      ))}
-                    </CategoryCard>
-                  ))}
-                </div>
-              </section>
-            ))}
+          <div className="mt-10">
+            <CityFilterSection topicGroups={sortedTopicGroups} isOwner={isOwner} />
           </div>
         )}
       </main>
