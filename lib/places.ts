@@ -12,6 +12,7 @@ export type PlaceDetails = {
   address: string | null;
   rating: number | null;
   mapsUrl: string | null;
+  photoName: string | null;
 };
 
 function apiKey() {
@@ -70,7 +71,7 @@ export async function getPlaceDetails(
     {
       headers: {
         "X-Goog-Api-Key": apiKey(),
-        "X-Goog-FieldMask": "id,displayName,formattedAddress,rating,googleMapsUri",
+        "X-Goog-FieldMask": "id,displayName,formattedAddress,rating,googleMapsUri,photos.name",
       },
     }
   );
@@ -87,5 +88,20 @@ export async function getPlaceDetails(
     address: data.formattedAddress ?? null,
     rating: data.rating ?? null,
     mapsUrl: data.googleMapsUri ?? null,
+    photoName: data.photos?.[0]?.name ?? null,
   };
+}
+
+export async function getPlacePhoto(
+  photoName: string
+): Promise<{ bytes: ArrayBuffer; contentType: string } | null> {
+  const res = await fetch(`${PLACES_BASE}/${photoName}/media?maxWidthPx=800`, {
+    headers: { "X-Goog-Api-Key": apiKey() },
+  });
+
+  if (!res.ok) return null;
+
+  const bytes = await res.arrayBuffer();
+  const contentType = res.headers.get("content-type") ?? "image/jpeg";
+  return { bytes, contentType };
 }

@@ -1,4 +1,4 @@
-import { getPlaceDetails } from "@/lib/places";
+import { getPlaceDetails, getPlacePhoto } from "@/lib/places";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -38,6 +38,28 @@ export async function POST(request: Request) {
 
     const details = await getPlaceDetails(placeId, sessionToken);
 
+    let photoUrl: string | null = null;
+    if (details.photoName) {
+      try {
+        const photo = await getPlacePhoto(details.photoName);
+        if (photo) {
+          const { error: uploadError } = await supabase.storage
+            .from("business-photos")
+            .upload(placeId, photo.bytes, { contentType: photo.contentType });
+          if (uploadError) {
+            console.error("Failed to upload business photo", uploadError);
+          } else {
+            const { data: publicUrlData } = supabase.storage
+              .from("business-photos")
+              .getPublicUrl(placeId);
+            photoUrl = publicUrlData.publicUrl;
+          }
+        }
+      } catch (photoErr) {
+        console.error("Failed to fetch business photo", photoErr);
+      }
+    }
+
     const { data: business, error } = await supabase
       .from("businesses")
       .insert({
@@ -46,6 +68,7 @@ export async function POST(request: Request) {
         address: details.address,
         rating: details.rating,
         maps_url: details.mapsUrl,
+        photo_url: photoUrl,
       })
       .select()
       .single();
