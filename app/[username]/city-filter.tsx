@@ -16,6 +16,7 @@ type PickWithCity = {
     address: string | null;
     maps_url: string | null;
     rating: number | null;
+    photo_url: string | null;
     cities: CityInfo | null;
   } | null;
 };

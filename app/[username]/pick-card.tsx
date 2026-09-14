@@ -13,6 +13,7 @@ type Pick = {
     name: string;
     address: string | null;
     maps_url: string | null;
+    photo_url: string | null;
   } | null;
 };
 
@@ -119,20 +120,31 @@ export default function PickCard({
   return (
     <article className="elevate elevate-hover flex snap-start shrink-0 basis-[78%] flex-col rounded-xl border border-border/70 bg-popover p-4 sm:basis-[calc(50%-0.5rem)]">
       {mode === "view" && (
-        <div
-          className="flex aspect-[5/4] w-full items-center justify-center overflow-hidden rounded-lg border border-border/70"
-          style={{
-            background:
-              "linear-gradient(150deg, color-mix(in srgb, var(--tile-accent, var(--primary)) 24%, var(--card)) 0%, var(--card) 78%)",
-          }}
-        >
-          <span
-            aria-hidden="true"
-            className="font-serif text-6xl leading-none"
-            style={{ color: "var(--tile-accent, var(--primary))" }}
-          >
-            {pick.businesses?.name?.charAt(0)}
-          </span>
+        <div className="aspect-[5/4] w-full overflow-hidden rounded-lg border border-border/70">
+          {pick.businesses?.photo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={pick.businesses.photo_url}
+              alt=""
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div
+              className="flex h-full w-full items-center justify-center"
+              style={{
+                background:
+                  "linear-gradient(150deg, color-mix(in srgb, var(--tile-accent, var(--primary)) 24%, var(--card)) 0%, var(--card) 78%)",
+              }}
+            >
+              <span
+                aria-hidden="true"
+                className="font-serif text-6xl leading-none"
+                style={{ color: "var(--tile-accent, var(--primary))" }}
+              >
+                {pick.businesses?.name?.charAt(0)}
+              </span>
+            </div>
+          )}
         </div>
       )}
 
