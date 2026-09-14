@@ -21,14 +21,14 @@ export default function ProfileCard({
   pickCount,
   topPicks,
   accent,
-  isOwnProfile,
+  canFollow,
   isFollowing,
 }: {
   profile: Profile;
   pickCount: number;
   topPicks: string[];
   accent: "primary" | "accent";
-  isOwnProfile: boolean;
+  canFollow: boolean;
   isFollowing: boolean;
 }) {
   const displayName = profile.display_name || profile.username;
@@ -90,7 +90,7 @@ export default function ProfileCard({
         ))}
       </div>
 
-      {!isOwnProfile && (
+      {canFollow && (
         <div className="relative z-10 self-start">
           <FollowButton followedId={profile.id} initiallyFollowing={isFollowing} />
         </div>

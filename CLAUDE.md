@@ -26,8 +26,8 @@ each category, in their own words — e.g. "Single O — best coffee in Sydney."
 
 ## Data model
 
-See `schema.sql`. Five tables: `profiles`, `categories`, `businesses`,
-`picks`, `topics` (categories reference `topic_id`).
+See `schema.sql`. Seven tables: `profiles`, `categories`, `businesses`,
+`picks`, `topics`, `cities`, `follows` (categories reference `topic_id`).
 
 ## Screens (build in this order)
 

@@ -70,7 +70,7 @@ export default async function CommunityPage() {
                 pickCount={pickCounts.get(profile.id) ?? 0}
                 topPicks={topPickNames.get(profile.id) ?? []}
                 accent={index % 2 === 0 ? "primary" : "accent"}
-                isOwnProfile={user?.id === profile.id}
+                canFollow={user != null && user.id !== profile.id}
                 isFollowing={followingIds.has(profile.id)}
               />
             ))}

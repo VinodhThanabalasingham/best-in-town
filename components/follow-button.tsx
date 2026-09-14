@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function FollowButton({
@@ -9,6 +10,7 @@ export default function FollowButton({
   followedId: string;
   initiallyFollowing: boolean;
 }) {
+  const router = useRouter();
   const [isFollowing, setIsFollowing] = useState(initiallyFollowing);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,6 +29,7 @@ export default function FollowButton({
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Something went wrong.");
       setIsFollowing(!isFollowing);
+      router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
