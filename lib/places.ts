@@ -97,6 +97,7 @@ export async function getPlacePhoto(
 ): Promise<{ bytes: ArrayBuffer; contentType: string } | null> {
   const res = await fetch(`${PLACES_BASE}/${photoName}/media?maxWidthPx=800`, {
     headers: { "X-Goog-Api-Key": apiKey() },
+    signal: AbortSignal.timeout(5000),
   });
 
   if (!res.ok) return null;

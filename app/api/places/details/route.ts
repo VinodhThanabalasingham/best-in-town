@@ -46,9 +46,18 @@ export async function POST(request: Request) {
           const { error: uploadError } = await supabase.storage
             .from("business-photos")
             .upload(placeId, photo.bytes, { contentType: photo.contentType });
-          if (uploadError) {
+          const isDuplicateError =
+            uploadError &&
+            (("statusCode" in uploadError &&
+              String((uploadError as { statusCode?: unknown }).statusCode) === "409") ||
+              uploadError.message === "The resource already exists");
+          if (uploadError && !isDuplicateError) {
             console.error("Failed to upload business photo", uploadError);
           } else {
+            // Either the upload succeeded, or it failed because the object
+            // already exists at this key (a concurrent request for the same
+            // placeId won the race) — in both cases the object at this key
+            // is the correct photo for this place, so resolve its URL.
             const { data: publicUrlData } = supabase.storage
               .from("business-photos")
               .getPublicUrl(placeId);
