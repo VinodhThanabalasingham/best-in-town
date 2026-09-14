@@ -46,6 +46,12 @@ export default async function Nav() {
             Community
           </Link>
           <Link
+            href="/following"
+            className="hidden text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline sm:inline"
+          >
+            Following
+          </Link>
+          <Link
             href="/edit-profile"
             className="hidden text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline sm:inline"
           >
