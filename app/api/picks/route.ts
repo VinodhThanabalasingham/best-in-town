@@ -1,4 +1,5 @@
 import { resolveCategoryId } from "@/lib/categories";
+import { findConflictingPickBusinessName } from "@/lib/picks";
 import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 
@@ -41,6 +42,20 @@ export async function POST(request: Request) {
     .single();
 
   if (pickError) {
+    if (pickError.code === "23505") {
+      const existingBusinessName = await findConflictingPickBusinessName(
+        supabase,
+        user.id,
+        resolved.categoryId
+      );
+      const suffix = existingBusinessName ? ` (${existingBusinessName})` : "";
+      return NextResponse.json(
+        {
+          error: `You already have a pick for ${categoryLabel.trim()}${suffix}. Edit that one instead of adding a new one.`,
+        },
+        { status: 409 }
+      );
+    }
     console.error(pickError);
     return NextResponse.json({ error: "Failed to save pick" }, { status: 500 });
   }
