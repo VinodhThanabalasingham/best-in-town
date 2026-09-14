@@ -1,13 +1,5 @@
+import ProfileCard from "@/components/profile-card";
 import { createClient } from "@/lib/supabase/server";
-import { ArrowUpRight, MapPin } from "lucide-react";
-import Link from "next/link";
-
-function initials(name: string) {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length === 0) return "";
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[1][0]).toUpperCase();
-}
 
 type PickRow = {
   profile_id: string;
@@ -16,6 +8,10 @@ type PickRow = {
 
 export default async function CommunityPage() {
   const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data: profiles } = await supabase
     .from("profiles")
@@ -38,6 +34,15 @@ export default async function CommunityPage() {
     }
   }
 
+  let followingIds = new Set<string>();
+  if (user) {
+    const { data: follows } = await supabase
+      .from("follows")
+      .select("followed_id")
+      .eq("follower_id", user.id);
+    followingIds = new Set((follows ?? []).map((f) => f.followed_id));
+  }
+
   return (
     <div className="min-h-screen">
       <main className="above-grain mx-auto max-w-4xl px-6 pb-24 pt-10 md:px-10 md:pt-14">
@@ -58,71 +63,17 @@ export default async function CommunityPage() {
           <p className="mt-10 text-muted-foreground">No profiles yet.</p>
         ) : (
           <div className="mt-12 grid gap-4 sm:grid-cols-2">
-            {profiles.map((profile, index) => {
-              const displayName = profile.display_name || profile.username;
-              const count = pickCounts.get(profile.id) ?? 0;
-              const topPicks = topPickNames.get(profile.id) ?? [];
-              const accent = index % 2 === 0 ? "primary" : "accent";
-
-              return (
-                <Link
-                  key={profile.id}
-                  href={`/${profile.username}`}
-                  className="elevate elevate-hover group flex flex-col gap-5 rounded-3xl border border-border/70 bg-card p-6"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-4">
-                      {profile.avatar_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={profile.avatar_url}
-                          alt=""
-                          className="h-14 w-14 shrink-0 rounded-full object-cover"
-                        />
-                      ) : (
-                        <span
-                          aria-hidden="true"
-                          className={
-                            accent === "primary"
-                              ? "flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-primary/30 bg-primary/10 font-serif text-lg text-primary"
-                              : "flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-accent/30 bg-accent/10 font-serif text-lg text-accent"
-                          }
-                        >
-                          {initials(displayName)}
-                        </span>
-                      )}
-                      <div>
-                        <h2 className="text-lg font-semibold tracking-tight text-foreground">
-                          {displayName}
-                        </h2>
-                        <p className="text-sm text-muted-foreground">
-                          @{profile.username}
-                        </p>
-                      </div>
-                    </div>
-                    <ArrowUpRight
-                      className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-foreground"
-                      aria-hidden="true"
-                    />
-                  </div>
-
-                  <div className="mt-auto flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-foreground/[0.06] px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                      <MapPin aria-hidden="true" className="h-3 w-3" />
-                      {count} {count === 1 ? "pick" : "picks"}
-                    </span>
-                    {topPicks.map((name) => (
-                      <span
-                        key={name}
-                        className="rounded-full border border-border/70 px-2.5 py-1 text-xs text-foreground/80"
-                      >
-                        {name}
-                      </span>
-                    ))}
-                  </div>
-                </Link>
-              );
-            })}
+            {profiles.map((profile, index) => (
+              <ProfileCard
+                key={profile.id}
+                profile={profile}
+                pickCount={pickCounts.get(profile.id) ?? 0}
+                topPicks={topPickNames.get(profile.id) ?? []}
+                accent={index % 2 === 0 ? "primary" : "accent"}
+                isOwnProfile={user?.id === profile.id}
+                isFollowing={followingIds.has(profile.id)}
+              />
+            ))}
           </div>
         )}
       </main>
